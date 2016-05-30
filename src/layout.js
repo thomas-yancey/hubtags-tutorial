@@ -1,8 +1,12 @@
 import React from 'react'
+import app from 'ampersand-app'
 import localLinks from 'local-links'
+import ampersandMixin from 'ampersand-react-mixin'
 import NavHelper from './components/clickhandler'
 
 export default React.createClass({
+  mixins: [ampersandMixin],
+
   displayName: 'Layout',
 
   render: function(){
@@ -14,7 +18,7 @@ export default React.createClass({
           <ul className='list-unstyled list-inline cf'>
             <li>Labelr</li>
             <li><a href='/repos'>Repos</a></li>
-            <li className='pull-right'><a href='/'>Logout</a></li>
+            <li className='pull-right'><a href='/logout'>Logout</a> {this.props.me.login}</li>
           </ul>
         </nav>
         <div className='container'>
