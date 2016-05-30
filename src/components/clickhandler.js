@@ -5,16 +5,17 @@ import localLinks from 'local-links'
 export default React.createClass({
   displayName: 'NavHelper',
 
-  onClick (event) {
+  onClick(event){
     const pathname = localLinks.getLocalPathname(event)
 
-    if (pathname) {
+    if (pathname){
       event.preventDefault()
+
       app.router.history.navigate(pathname)
     }
   },
 
-  render () {
+  render: function(){
     return (
       <div {...this.props} onClick={this.onClick}>
         {this.props.children}

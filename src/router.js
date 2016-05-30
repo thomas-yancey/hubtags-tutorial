@@ -7,26 +7,14 @@ import PublicPage from './pages/public'
 import ReposPage from './pages/repos'
 import RepoDetail from './pages/repo-detail'
 import Layout from './layout'
-import MessagePage from './pages/message'
-import config from './config'
-
-function requiresAuth (handlerName) {
-  return function () {
-    if (app.me.token) {
-      this[handlerName].apply(this, arguments)
-    } else {
-      this.redirectTo('/')
-    }
-  }
-}
 
 export default Router.extend({
-  renderPage (page, opts = {layout: true}) {
-    if (opts.layout) {
+  renderPage(page, opts={layout: true}){
+    if (opts.layout){
       page = (
-        <Layout me={app.me}>
-          {page}
-        </Layout>
+      <Layout me={app.me}>
+        {page}
+      </Layout>
       )
     }
 
@@ -35,65 +23,51 @@ export default Router.extend({
 
   routes: {
     '': 'public',
-    'repos': requiresAuth('repos'),
+    'repos': 'repos',
+    'repo/:owner/:name': 'repoDetail',
     'login': 'login',
     'logout': 'logout',
-    'repo/:owner/:name': requiresAuth('repoDetail'),
-    'auth/callback?:query': 'authCallback',
-    '*fourOhfour': 'fourOhfour'
+    'auth/callback?:query': 'authCallback'
   },
 
-  public () {
+  repoDetail(owner, name){
+    const model = app.me.repos.getByFullName(owner + "/" + name)
+    this.renderPage(<RepoDetail repo={model}/>)
+  },
+
+  public (){
     this.renderPage(<PublicPage/>, {layout: false})
   },
 
-  repos () {
+  repos (){
     this.renderPage(<ReposPage repos={app.me.repos}/>)
   },
 
-  repoDetail (owner, name) {
-    const model = app.me.repos.getByFullName(owner + '/' + name)
-    this.renderPage(<RepoDetail repo={model} labels={model.labels}/>)
-  },
-
-  login () {
-    window.location = 'https://github.com/login/oauth/authorize?' + qs.stringify({
-      client_id: config.clientId,
-      redirect_uri: window.location.origin + '/auth/callback',
-      scope: 'user,repo'
+  login (){
+    window.location = "https://github.com/login/oauth/authorize?" + qs.stringify({
+      client_id: 'f8dd69187841cdd22a26',
+      redirect_uri: window.location.origin + "/auth/callback",
+      scope: 'user,repo',
     })
   },
 
-  authCallback (query) {
+  authCallback(query){
     query = qs.parse(query)
     console.log(query)
-
+    console.log("https://labelr-localhost.herokuapp.com/authenticate/" + query.code)
     xhr({
-      url: config.authUrl + '/' + query.code,
+      url: "https://labelr-localhost.herokuapp.com/authenticate/" + query.code,
       json: true
     }, (err, req, body) => {
       console.log(body)
       app.me.token = body.token
       this.redirectTo('/repos')
     })
-
-    this.renderPage(<MessagePage title='Fetching your data'/>)
   },
 
-  logout () {
+  logout(){
     window.localStorage.clear()
     window.location = '/'
-  },
-
-  fourOhfour () {
-    this.renderPage(<MessagePage title='Not Found' body='sorry nothing here'/>)
   }
+
 })
-
-
-
-
-
-
-
-

@@ -7,7 +7,7 @@ import Me from './models/me'
 window.app = app
 
 app.extend({
-  init () {
+  init(){
     this.me = new Me()
     this.me.fetchInitialData()
     this.router = new Router()
